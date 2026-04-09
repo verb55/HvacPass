@@ -1,0 +1,151 @@
+{
+  "common": {
+    "app_name": "HvacPass",
+    "loading": "Laden...",
+    "error": "Fehler",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "confirm": "Bestätigen",
+    "back": "Zurück",
+    "next": "Weiter",
+    "close": "Schließen",
+    "search": "Suchen",
+    "filter": "Filtern",
+    "no_results": "Keine Ergebnisse",
+    "retry": "Wiederholen",
+    "required": "Erforderlich"
+  },
+  "auth": {
+    "sign_in": "Anmelden",
+    "sign_out": "Abmelden",
+    "email": "E-Mail",
+    "password": "Passwort",
+    "phone": "Telefon",
+    "forgot_password": "Passwort vergessen?",
+    "create_account": "Konto erstellen",
+    "welcome_back": "Willkommen zurück",
+    "sign_in_subtitle": "Melden Sie sich an, um Aufträge zu verwalten",
+    "invalid_credentials": "Ungültige E-Mail oder Passwort",
+    "account_created": "Konto erstellt",
+    "check_email": "Überprüfen Sie Ihre E-Mail"
+  },
+  "dashboard": {
+    "welcome": "Willkommen, {name}",
+    "today": "Heute",
+    "active_orders": "Aktive Aufträge",
+    "completed_this_month": "Diesen Monat abgeschlossen",
+    "recent_orders": "Letzte Aufträge",
+    "no_active_orders": "Keine aktiven Aufträge",
+    "start_new": "Neuen Auftrag starten",
+    "view_all": "Alle anzeigen"
+  },
+  "work_order": {
+    "title": "Auftrag",
+    "create": "Auftrag erstellen",
+    "details": "Auftragsdetails",
+    "start": "Arbeit starten",
+    "stop": "Arbeit beenden",
+    "pause": "Pause",
+    "resume": "Fortsetzen",
+    "status": {
+      "draft": "Entwurf",
+      "in_progress": "In Bearbeitung",
+      "completed": "Abgeschlossen",
+      "cancelled": "Storniert"
+    },
+    "photos_required": "Erforderliche Fotos",
+    "photos_uploaded": "Fotos hochgeladen: {count}/4",
+    "photo_types": {
+      "protection": "Schutz",
+      "technical": "Technisch",
+      "final": "Endergebnis",
+      "cleaning": "Reinigung"
+    },
+    "photo_labels": {
+      "protection": "Arbeitsbereichschutz",
+      "technical": "Technisches Foto (kritische Punkte)",
+      "final": "Endergebnis der Installation",
+      "cleaning": "Gereinigter Arbeitsbereich"
+    },
+    "complete": "Auftrag abschließen",
+    "duration": "Dauer",
+    "notes": "Notizen",
+    "notes_placeholder": "Arbeitsnotizen hinzufügen...",
+    "customer_signature": "Kundensignatur",
+    "validation": {
+      "all_photos_required": "Laden Sie alle 4 erforderlichen Fotos hoch",
+      "timer_required": "Timer vor Abschluss starten"
+    },
+    "success": {
+      "completed": "Auftrag abgeschlossen!",
+      "report_sent": "PDF-Bericht an Kunden gesendet"
+    }
+  },
+  "unit": {
+    "title": "Gerät",
+    "select": "Gerät auswählen",
+    "brand": "Marke",
+    "model": "Modell",
+    "serial_number": "Seriennummer",
+    "install_date": "Installationsdatum",
+    "warranty_until": "Garantie bis",
+    "location": "Standort",
+    "scan_qr": "QR-Code scannen",
+    "qr_instructions": "Kamera auf Geräte-QR-Code richten",
+    "invalid_qr": "Unbekannter QR-Code. Bitte versuchen Sie es erneut.",
+    "already_exists": "Auftrag für dieses Gerät existiert bereits"
+  },
+  "customer": {
+    "title": "Kunde",
+    "select": "Kunde auswählen",
+    "name": "Name",
+    "address": "Adresse",
+    "city": "Stadt",
+    "phone": "Telefon",
+    "email": "E-Mail",
+    "notes": "Notizen"
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "scan": "QR scannen",
+    "orders": "Aufträge",
+    "profile": "Profil"
+  },
+  "validation": {
+    "required": "Dieses Feld ist erforderlich",
+    "invalid_email": "Ungültige E-Mail-Adresse",
+    "invalid_phone": "Ungültige Telefonnummer",
+    "min_length": "Mindestens {min} Zeichen",
+    "max_length": "Maximal {max} Zeichen",
+    "photos_missing": "Laden Sie alle erforderlichen Fotos hoch"
+  },
+  "errors": {
+    "generic": "Etwas ist schief gelaufen. Versuchen Sie es erneut.",
+    "network": "Keine Internetverbindung",
+    "gps_unavailable": "GPS-Standort nicht verfügbar",
+    "camera_unavailable": "Kamera nicht verfügbar",
+    "upload_failed": "Datei-Upload fehlgeschlagen",
+    "auth_required": "Melden Sie sich an, um fortzufahren"
+  },
+  "time": {
+    "hours": "{count} Std.",
+    "minutes": "{count} Min.",
+    "today": "Heute",
+    "yesterday": "Gestern"
+  },
+  "pdf": {
+    "title": "Auftragsbericht",
+    "report_id": "Bericht-ID",
+    "work_details": "Arbeitsdetails",
+    "work_type": "Arbeitsart",
+    "types": {
+      "install": "Installation",
+      "service": "Wartung",
+      "warranty": "Garantie"
+    },
+    "installer": "Installateur",
+    "license": "Lizenz",
+    "footer": "Erstellt von HvacPass"
+  }
+}

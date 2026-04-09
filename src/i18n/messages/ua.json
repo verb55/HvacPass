@@ -1,0 +1,151 @@
+{
+  "common": {
+    "app_name": "HvacPass",
+    "loading": "Завантаження...",
+    "error": "Помилка",
+    "save": "Зберегти",
+    "cancel": "Скасувати",
+    "delete": "Видалити",
+    "confirm": "Підтвердити",
+    "back": "Назад",
+    "next": "Далі",
+    "close": "Закрити",
+    "search": "Пошук",
+    "filter": "Фільтр",
+    "no_results": "Результатів немає",
+    "retry": "Повторити",
+    "required": "Обов'язково"
+  },
+  "auth": {
+    "sign_in": "Увійти",
+    "sign_out": "Вийти",
+    "email": "Ел. пошта",
+    "password": "Пароль",
+    "phone": "Телефон",
+    "forgot_password": "Забули пароль?",
+    "create_account": "Створити акаунт",
+    "welcome_back": "З поверненням",
+    "sign_in_subtitle": "Увійдіть, щоб керувати замовленнями",
+    "invalid_credentials": "Невірна ел. пошта або пароль",
+    "account_created": "Акаунт створено",
+    "check_email": "Перевірте ел. пошту"
+  },
+  "dashboard": {
+    "welcome": "Вітаємо, {name}",
+    "today": "Сьогодні",
+    "active_orders": "Активні замовлення",
+    "completed_this_month": "Завершено цього місяця",
+    "recent_orders": "Останні замовлення",
+    "no_active_orders": "Немає активних замовлень",
+    "start_new": "Почати нове замовлення",
+    "view_all": "Подивитися всі"
+  },
+  "work_order": {
+    "title": "Замовлення",
+    "create": "Створити замовлення",
+    "details": "Деталі замовлення",
+    "start": "Почати роботу",
+    "stop": "Закінчити роботу",
+    "pause": "Пауза",
+    "resume": "Продовжити",
+    "status": {
+      "draft": "Чернетка",
+      "in_progress": "В процесі",
+      "completed": "Завершено",
+      "cancelled": "Скасовано"
+    },
+    "photos_required": "Обов'язкові фото",
+    "photos_uploaded": "Завантажено фото: {count}/4",
+    "photo_types": {
+      "protection": "Захист",
+      "technical": "Технічні",
+      "final": "Кінцевий результат",
+      "cleaning": "Прибирання"
+    },
+    "photo_labels": {
+      "protection": "Захист робочої зони",
+      "technical": "Технічне фото (критичні точки)",
+      "final": "Кінцевий результат монтажу",
+      "cleaning": "Прибране робоче місце"
+    },
+    "complete": "Завершити замовлення",
+    "duration": "Тривалість",
+    "notes": "Нотатки",
+    "notes_placeholder": "Додайте нотатки про виконану роботу...",
+    "customer_signature": "Підпис клієнта",
+    "validation": {
+      "all_photos_required": "Завантажте всі 4 обов'язкові фото",
+      "timer_required": "Запустіть таймер перед завершенням"
+    },
+    "success": {
+      "completed": "Замовлення завершено!",
+      "report_sent": "PDF-звіт надіслано клієнту"
+    }
+  },
+  "unit": {
+    "title": "Пристрій",
+    "select": "Вибрати пристрій",
+    "brand": "Бренд",
+    "model": "Модель",
+    "serial_number": "Серійний номер",
+    "install_date": "Дата встановлення",
+    "warranty_until": "Гарантія до",
+    "location": "Розташування",
+    "scan_qr": "Сканувати QR-код",
+    "qr_instructions": "Наведіть камеру на QR-код пристрою",
+    "invalid_qr": "Невідомий QR-код. Спробуйте ще раз.",
+    "already_exists": "Замовлення для цього пристрою вже існує"
+  },
+  "customer": {
+    "title": "Клієнт",
+    "select": "Вибрати клієнта",
+    "name": "Назва",
+    "address": "Адреса",
+    "city": "Місто",
+    "phone": "Телефон",
+    "email": "Ел. пошта",
+    "notes": "Нотатки"
+  },
+  "navigation": {
+    "dashboard": "Панель",
+    "scan": "Сканувати QR",
+    "orders": "Замовлення",
+    "profile": "Профіль"
+  },
+  "validation": {
+    "required": "Це поле обов'язкове",
+    "invalid_email": "Невірна адреса ел. пошти",
+    "invalid_phone": "Невірний номер телефону",
+    "min_length": "Мінімум {min} символів",
+    "max_length": "Максимум {max} символів",
+    "photos_missing": "Завантажте всі обов'язкові фото"
+  },
+  "errors": {
+    "generic": "Щось пішло не так. Спробуйте ще раз.",
+    "network": "Немає з'єднання з інтернетом",
+    "gps_unavailable": "GPS-локалізація недоступна",
+    "camera_unavailable": "Камера недоступна",
+    "upload_failed": "Не вдалося завантажити файл",
+    "auth_required": "Увійдіть, щоб продовжити"
+  },
+  "time": {
+    "hours": "{count} год.",
+    "minutes": "{count} хв.",
+    "today": "Сьогодні",
+    "yesterday": "Вчора"
+  },
+  "pdf": {
+    "title": "Звіт про замовлення",
+    "report_id": "ID звіту",
+    "work_details": "Деталі роботи",
+    "work_type": "Тип роботи",
+    "types": {
+      "install": "Монтаж",
+      "service": "Сервіс",
+      "warranty": "Гарантія"
+    },
+    "installer": "Монтажник",
+    "license": "Ліцензія",
+    "footer": "Створено HvacPass"
+  }
+}

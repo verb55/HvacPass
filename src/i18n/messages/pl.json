@@ -1,0 +1,151 @@
+{
+  "common": {
+    "app_name": "HvacPass",
+    "loading": "Ładowanie...",
+    "error": "Błąd",
+    "save": "Zapisz",
+    "cancel": "Anuluj",
+    "delete": "Usuń",
+    "confirm": "Potwierdź",
+    "back": "Wstecz",
+    "next": "Dalej",
+    "close": "Zamknij",
+    "search": "Szukaj",
+    "filter": "Filtruj",
+    "no_results": "Brak wyników",
+    "retry": "Ponów",
+    "required": "Wymagane"
+  },
+  "auth": {
+    "sign_in": "Zaloguj się",
+    "sign_out": "Wyloguj się",
+    "email": "E-mail",
+    "password": "Hasło",
+    "phone": "Telefon",
+    "forgot_password": "Zapomniałeś hasła?",
+    "create_account": "Utwórz konto",
+    "welcome_back": "Witaj ponownie",
+    "sign_in_subtitle": "Zaloguj się, aby zarządzać zleceniami",
+    "invalid_credentials": "Nieprawidłowy e-mail lub hasło",
+    "account_created": "Konto zostało utworzone",
+    "check_email": "Sprawdź skrzynkę mailową"
+  },
+  "dashboard": {
+    "welcome": "Witaj, {name}",
+    "today": "Dzisiaj",
+    "active_orders": "Aktywne zlecenia",
+    "completed_this_month": "Ukończone w tym miesiącu",
+    "recent_orders": "Ostatnie zlecenia",
+    "no_active_orders": "Brak aktywnych zleceń",
+    "start_new": "Rozpocznij nowe zlecenie",
+    "view_all": "Zobacz wszystkie"
+  },
+  "work_order": {
+    "title": "Zlecenie",
+    "create": "Utwórz zlecenie",
+    "details": "Szczegóły zlecenia",
+    "start": "Rozpocznij pracę",
+    "stop": "Zakończ pracę",
+    "pause": "Pauza",
+    "resume": "Wznów",
+    "status": {
+      "draft": "Szkic",
+      "in_progress": "W trakcie",
+      "completed": "Ukończone",
+      "cancelled": "Anulowane"
+    },
+    "photos_required": "Wymagane zdjęcia",
+    "photos_uploaded": "Zdjęć przesłano: {count}/4",
+    "photo_types": {
+      "protection": "Zabezpieczenie",
+      "technical": "Punkty newralgiczne",
+      "final": "Efekt końcowy",
+      "cleaning": "Posprzątane miejsce"
+    },
+    "photo_labels": {
+      "protection": "Zabezpieczenie miejsca pracy",
+      "technical": "Zdjęcie techniczne (nowralgiczne punkty)",
+      "final": "Efekt końcowy instalacji",
+      "cleaning": "Posprzątane miejsce pracy"
+    },
+    "complete": "Ukończ zlecenie",
+    "duration": "Czas trwania",
+    "notes": "Notatki",
+    "notes_placeholder": "Dodaj notatki z wykonanej pracy...",
+    "customer_signature": "Podpis klienta",
+    "validation": {
+      "all_photos_required": "Prześlij wszystkie 4 wymagane zdjęcia",
+      "timer_required": "Uruchom timer przed ukończeniem"
+    },
+    "success": {
+      "completed": "Zlecenie zostało ukończone!",
+      "report_sent": "Raport PDF został wysłany do klienta"
+    }
+  },
+  "unit": {
+    "title": "Urządzenie",
+    "select": "Wybierz urządzenie",
+    "brand": "Marka",
+    "model": "Model",
+    "serial_number": "Numer seryjny",
+    "install_date": "Data instalacji",
+    "warranty_until": "Gwarancja do",
+    "location": "Lokalizacja",
+    "scan_qr": "Skanuj kod QR",
+    "qr_instructions": "Skieruj kamerę na kod QR urządzenia",
+    "invalid_qr": "Nieznany kod QR. Spróbuj ponownie.",
+    "already_exists": "Zlecenie dla tego urządzenia już istnieje"
+  },
+  "customer": {
+    "title": "Klient",
+    "select": "Wybierz klienta",
+    "name": "Nazwa",
+    "address": "Adres",
+    "city": "Miasto",
+    "phone": "Telefon",
+    "email": "E-mail",
+    "notes": "Notatki"
+  },
+  "navigation": {
+    "dashboard": "Pulpit",
+    "scan": "Skanuj QR",
+    "orders": "Zlecenia",
+    "profile": "Profil"
+  },
+  "validation": {
+    "required": "To pole jest wymagane",
+    "invalid_email": "Nieprawidłowy adres e-mail",
+    "invalid_phone": "Nieprawidłowy numer telefonu",
+    "min_length": "Minimum {min} znaków",
+    "max_length": "Maksimum {max} znaków",
+    "photos_missing": "Prześlij wszystkie wymagane zdjęcia"
+  },
+  "errors": {
+    "generic": "Coś poszło nie tak. Spróbuj ponownie.",
+    "network": "Brak połączenia z internetem",
+    "gps_unavailable": "Lokalizacja GPS niedostępna",
+    "camera_unavailable": "Kamera niedostępna",
+    "upload_failed": "Nie udało się przesłać pliku",
+    "auth_required": "Zaloguj się, aby kontynuować"
+  },
+  "time": {
+    "hours": "{count} godz.",
+    "minutes": "{count} min.",
+    "today": "Dzisiaj",
+    "yesterday": "Wczoraj"
+  },
+  "pdf": {
+    "title": "Raport zlecenia",
+    "report_id": "ID Raportu",
+    "work_details": "Szczegóły pracy",
+    "work_type": "Typ pracy",
+    "types": {
+      "install": "Instalacja",
+      "service": "Serwis",
+      "warranty": "Gwarancja"
+    },
+    "installer": "Instalator",
+    "license": "Uprawnienia",
+    "footer": "Wygenerowano przez HvacPass"
+  }
+}
