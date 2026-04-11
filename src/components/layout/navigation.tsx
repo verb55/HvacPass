@@ -32,6 +32,7 @@ export function BottomNav({ locale }: BottomNavProps) {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 glass border-t border-border safe-bottom">
+      {/* Dodano max-w-lg mx-auto dla spójności z resztą layoutu */}
       <div className="flex items-center justify-around h-16 px-1 max-w-lg mx-auto">
         {navItems.map((item) => {
           const isActive = pathname?.includes(item.href);
@@ -48,6 +49,7 @@ export function BottomNav({ locale }: BottomNavProps) {
               )}
             >
               <Icon className={cn("w-6 h-6 transition-transform", isActive && "scale-110")} />
+              {/* Zmniejszono font do text-[10px], aby napisy nie nakładały się na siebie */}
               <span className={cn("text-[10px] mt-0.5 leading-tight", isActive && "font-medium")}>
                 {t(item.labelKey)}
               </span>
@@ -67,10 +69,10 @@ export function Header({
   onLocaleChange?: (locale: Locale) => void;
 }) {
   const profile = useAppStore((state) => state.profile);
-  const t = useTranslations();
 
   return (
     <header className="sticky top-0 z-40 glass border-b border-border safe-top">
+      {/* Dodano max-w-lg mx-auto, aby nagłówek był wycentrowany na szerszych ekranach */}
       <div className="flex items-center justify-between h-14 px-4 max-w-lg mx-auto">
         <Link
           href={`/${locale}/dashboard`}
@@ -87,14 +89,13 @@ export function Header({
         </Link>
 
         <div className="flex items-center gap-2">
-          {/* Language Selector */}
           <div className="relative">
             <select
               value={locale}
               onChange={(e) => onLocaleChange?.(e.target.value as Locale)}
               className="appearance-none bg-transparent border border-border rounded-lg pl-2 pr-7 py-1.5 text-sm cursor-pointer hover:bg-accent transition-colors"
             >
-              {Object.entries(localeNames).map(([code, name]) => (
+              {Object.entries(localeNames).map(([code]) => (
                 <option key={code} value={code}>
                   {code.toUpperCase()}
                 </option>
@@ -103,7 +104,6 @@ export function Header({
             <Globe className="absolute right-1.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground pointer-events-none" />
           </div>
 
-          {/* Avatar */}
           {profile && (
             <Link
               href={`/${locale}/profile`}
@@ -130,7 +130,8 @@ export function AppShell({
   return (
     <div className="min-h-full bg-background">
       <Header locale={locale} onLocaleChange={onLocaleChange} />
-      <main className="pb-20 max-w-lg mx-auto">
+      {/* KLUCZOWA ZMIANA: pb-20 zastąpione przez pb-nav z globals.css */}
+      <main className="pb-nav max-w-lg mx-auto px-4">
         {children}
       </main>
       <BottomNav locale={locale} onLocaleChange={onLocaleChange} />

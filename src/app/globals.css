@@ -4,35 +4,35 @@
 
 @layer base {
   :root {
-    --background: 222 47% 7%;      /* Slate 900 - Dark background */
-    --foreground: 210 40% 98%;     /* Slate 50 - Light text */
+    --background: 222 47% 7%;      /* Slate 900 */
+    --foreground: 210 40% 98%;     /* Slate 50 */
 
-    --card: 217 33% 17%;          /* Slate 800 - Card background */
+    --card: 217 33% 17%;          /* Slate 800 */
     --card-foreground: 210 40% 98%;
 
     --popover: 217 33% 17%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 25 95% 53%;        /* Orange 500 - Primary brand */
+    --primary: 25 95% 53%;        /* Orange 500 */
     --primary-foreground: 210 40% 98%;
 
     --secondary: 217 33% 17%;
     --secondary-foreground: 210 40% 98%;
 
-    --muted: 215 20% 30%;         /* Slate 700 */
-    --muted-foreground: 215 16% 55%; /* Slate 400 */
+    --muted: 215 20% 30%;
+    --muted-foreground: 215 16% 55%;
 
-    --accent: 217 33% 22%;        /* Slate 800 - Slightly lighter */
+    --accent: 217 33% 22%;
     --accent-foreground: 210 40% 98%;
 
-    --destructive: 0 84% 60%;     /* Red 500 */
+    --destructive: 0 84% 60%;
     --destructive-foreground: 210 40% 98%;
 
-    --success: 142 71% 45%;       /* Green 500 */
-    --warning: 48 96% 53%;        /* Yellow 500 */
-    --orange: 25 95% 53%;         /* Orange 500 */
+    --success: 142 71% 45%;
+    --warning: 48 96% 53%;
+    --orange: 25 95% 53%;
 
-    --border: 215 20% 30%;        /* Slate 700 */
+    --border: 215 20% 30%;
     --input: 217 33% 17%;
     --ring: 25 95% 53%;
 
@@ -45,152 +45,85 @@
     @apply border-border;
   }
 
-  body {
-    @apply bg-background text-foreground;
-    font-feature-settings: "rlig" 1, "calt" 1;
-  }
-
-  /* Better font rendering */
-  html {
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
-
-  /* Hide scrollbar but keep functionality */
-  .hide-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-
-  .hide-scrollbar::-webkit-scrollbar {
-    display: none;
-  }
-}
-
-@layer utilities {
-  /* Custom scrollbar for webkit */
-  .custom-scrollbar {
-    scrollbar-width: thin;
-    scrollbar-color: hsl(var(--muted)) transparent;
-  }
-
-  .custom-scrollbar::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  .custom-scrollbar::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  .custom-scrollbar::-webkit-scrollbar-thumb {
-    background-color: hsl(var(--muted));
-    border-radius: 3px;
-  }
-
-  /* Safe area insets for mobile */
-  .safe-top {
-    padding-top: env(safe-area-inset-top);
-  }
-
-  .safe-bottom {
-    padding-bottom: env(safe-area-inset-bottom);
-  }
-
-  /* Touch-friendly tap highlight */
-  .tap-highlight-none {
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  /* Prevent iOS text size adjustment */
-  html {
+  /* 1. Krytyczne poprawki dla wysokości i szerokości na smartfonach */
+  html, body {
+    height: 100%;
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
+    position: relative;
+    /* Zapobiega przypadkowym powiększeniom tekstu przez system */
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
   }
 
-  /* Smooth scrolling on iOS */
   body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    /* Płynne przewijanie na iOS */
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-y: none;
+    /* Blokuje "podwójne tąpnięcie" powiększające, co przyspiesza reakcję przycisków */
+    touch-action: manipulation;
   }
 
-  /* Prevent horizontal overflow on mobile */
-  body, #__next {
-    overflow-x: hidden;
-    width: 100%;
+  /* Zapobiega powiększaniu widoku przy kliknięciu w pola tekstowe na iPhone */
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+}
+
+@layer utilities {
+  /* 2. Dynamiczna wysokość ekranu uwzględniająca paski przeglądarek (Chrome/Safari) */
+  .min-h-screen-mobile {
+    min-height: 100vh;
+    min-height: 100dvh;
   }
 
-  /* Glass effect */
+  /* 3. Safe area - dodaje margines tam, gdzie iPhone ma pasek gestów */
+  .safe-top {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  /* 4. Specjalna klasa dla nawigacji dolnej - zapobiega zasłanianiu przycisków */
+  .pb-nav {
+    /* Wysokość BottomNav (64px) + Safe Area + dodatkowy bufor bezpieczeństwa */
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px) + 2rem);
+  }
+
+  .tap-highlight-none {
+    -webkit-tap-highlight-color: transparent;
+  }
+
   .glass {
-    @apply bg-card/80 backdrop-blur-lg;
+    @apply bg-card/80 backdrop-blur-lg border-t border-white/5;
+    -webkit-backdrop-filter: blur(16px);
   }
 
-  /* Gradient text */
   .text-gradient {
     @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-orange-400;
   }
 }
 
-/* Animations */
-@keyframes fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* Ukrywanie scrollbara */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
 }
 
-@keyframes slide-up {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes scale-in {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
+/* Animacje wejścia */
 .animate-fade-in {
   animation: fade-in 0.3s ease-out forwards;
 }
 
-.animate-slide-up {
-  animation: slide-up 0.4s ease-out forwards;
-}
-
-.animate-scale-in {
-  animation: scale-in 0.2s ease-out forwards;
-}
-
-/* Staggered animations */
-.stagger-1 { animation-delay: 0.1s; }
-.stagger-2 { animation-delay: 0.2s; }
-.stagger-3 { animation-delay: 0.3s; }
-.stagger-4 { animation-delay: 0.4s; }
-.stagger-5 { animation-delay: 0.5s; }
-
-/* Reduced motion */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  ::before,
-  ::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
