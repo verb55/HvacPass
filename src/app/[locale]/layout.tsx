@@ -4,10 +4,6 @@ import { getMessages } from "next-intl/server";
 import { AppShell } from "@/components/layout";
 import type { Locale } from "@/i18n/config";
 
-export const viewport = {
-  themeColor: "#0F172A",
-};
-
 export default async function LocaleLayout({
   children,
   params,
@@ -15,12 +11,12 @@ export default async function LocaleLayout({
   children: React.ReactNode;
   params: any;
 }) {
-  const locale = params?.locale || 'pl';
+  const locale = params?.locale || "pl";
   const messages = await getMessages();
 
   return (
-    <html lang={locale}>
-      <body>
+    <html lang={locale} className="h-full">
+      <body className="h-full">
         <NextIntlClientProvider messages={messages}>
           <AppShell locale={locale as Locale}>{children}</AppShell>
         </NextIntlClientProvider>

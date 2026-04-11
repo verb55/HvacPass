@@ -7,6 +7,7 @@ import { Camera, X, Flashlight, FlashlightOff, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import jsQR from "jsqr";
 
 interface QRScannerClientProps {
   locale: "pl" | "en" | "de" | "ua";
@@ -69,35 +70,50 @@ export function QRScannerClient({ locale, onScan }: QRScannerClientProps) {
     }
   }, [flashEnabled]);
 
-  // QR Code detection (simple implementation - in production use a library like jsQR)
+  const animFrameRef = useRef<number | null>(null);
+
   const processFrame = useCallback(() => {
-    if (!videoRef.current || !canvasRef.current || !isScanning) return;
+    if (!videoRef.current || !canvasRef.current) return;
 
     const video = videoRef.current;
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
 
-    if (!ctx || video.readyState !== video.HAVE_ENOUGH_DATA) {
-      requestAnimationFrame(processFrame);
-      return;
+    if (ctx && video.readyState === video.HAVE_ENOUGH_DATA) {
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      ctx.drawImage(video, 0, 0);
+
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const code = jsQR(imageData.data, imageData.width, imageData.height, {
+        inversionAttempts: "dontInvert",
+      });
+
+      if (code) {
+        handleScanSuccess(code.data);
+        return; // Stop loop after successful scan
+      }
     }
 
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    ctx.drawImage(video, 0, 0);
+    animFrameRef.current = requestAnimationFrame(processFrame);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-    // In production, use jsQR or similar library here
-    // For now, we'll handle manual entry
-
-    requestAnimationFrame(processFrame);
-  }, [isScanning]);
+  // Auto-start camera on mount
+  useEffect(() => {
+    startCamera();
+    return () => {
+      stopCamera();
+      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+    };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (isScanning) {
-      processFrame();
+      animFrameRef.current = requestAnimationFrame(processFrame);
+    } else {
+      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
     }
-    return () => stopCamera();
-  }, [isScanning, processFrame, stopCamera]);
+  }, [isScanning, processFrame]);
 
   const handleManualEntry = () => {
     // For demo purposes, simulate QR scan
@@ -120,7 +136,7 @@ export function QRScannerClient({ locale, onScan }: QRScannerClientProps) {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="h-full w-full bg-black flex flex-col">
       {/* Camera View */}
       <div className="relative flex-1 bg-black">
         {hasPermission === null && (

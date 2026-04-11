@@ -51,34 +51,34 @@ export function DashboardClient({
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-3">
         <Card className="border-l-4 border-l-primary">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">
+          <CardContent className="p-3">
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0">
+                <p className="text-xs text-muted-foreground leading-tight">
                   {t("dashboard.active_orders")}
                 </p>
-                <p className="text-3xl font-bold">{stats.activeOrders}</p>
+                <p className="text-2xl font-bold mt-1">{stats.activeOrders}</p>
               </div>
-              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                <Clock className="w-6 h-6 text-primary" />
+              <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                <Clock className="w-5 h-5 text-primary" />
               </div>
             </div>
           </CardContent>
         </Card>
 
         <Card className="border-l-4 border-l-success">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">
+          <CardContent className="p-3">
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0">
+                <p className="text-xs text-muted-foreground leading-tight">
                   {t("dashboard.completed_this_month")}
                 </p>
-                <p className="text-3xl font-bold">{stats.completedThisMonth}</p>
+                <p className="text-2xl font-bold mt-1">{stats.completedThisMonth}</p>
               </div>
-              <div className="w-12 h-12 rounded-xl bg-success/10 flex items-center justify-center">
-                <CheckCircle2 className="w-6 h-6 text-success" />
+              <div className="w-9 h-9 rounded-xl bg-success/10 flex items-center justify-center shrink-0">
+                <CheckCircle2 className="w-5 h-5 text-success" />
               </div>
             </div>
           </CardContent>

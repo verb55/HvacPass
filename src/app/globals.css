@@ -101,6 +101,24 @@
     -webkit-tap-highlight-color: transparent;
   }
 
+  /* Prevent iOS text size adjustment */
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  /* Smooth scrolling on iOS */
+  body {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: none;
+  }
+
+  /* Prevent horizontal overflow on mobile */
+  body, #__next {
+    overflow-x: hidden;
+    width: 100%;
+  }
+
   /* Glass effect */
   .glass {
     @apply bg-card/80 backdrop-blur-lg;
