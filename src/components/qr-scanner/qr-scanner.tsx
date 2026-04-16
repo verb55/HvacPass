@@ -2,220 +2,288 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
-import { Camera, X, Flashlight, FlashlightOff, RotateCcw } from "lucide-react";
+import { Camera, X, Flashlight, FlashlightOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 
 interface QRScannerClientProps {
   locale: "pl" | "en" | "de" | "ua";
   onScan?: (qrCode: string) => void;
 }
 
+type CameraState = "idle" | "requesting" | "active" | "denied" | "error";
+
 export function QRScannerClient({ locale, onScan }: QRScannerClientProps) {
-  const t = useTranslations("unit");
   const router = useRouter();
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const animFrameRef = useRef<number | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
 
-  const [hasPermission, setHasPermission] = useState<boolean | null>(null);
-  const [isScanning, setIsScanning] = useState(false);
+  const [cameraState, setCameraState] = useState<CameraState>("idle");
   const [flashEnabled, setFlashEnabled] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [lastScanned, setLastScanned] = useState<string | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const stopCamera = useCallback(() => {
-    if (videoRef.current?.srcObject) {
-      const stream = videoRef.current.srcObject as MediaStream;
-      stream.getTracks().forEach((track) => track.stop());
+    if (animFrameRef.current) {
+      cancelAnimationFrame(animFrameRef.current);
+      animFrameRef.current = null;
+    }
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((t) => t.stop());
+      streamRef.current = null;
+    }
+    if (videoRef.current) {
       videoRef.current.srcObject = null;
     }
-    setIsScanning(false);
   }, []);
 
-  const startCamera = useCallback(async () => {
-    setError(null);
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode: "environment",
-          width: { ideal: 1280 },
-          height: { ideal: 720 },
-        },
-      });
+  useEffect(() => {
+    return () => stopCamera();
+  }, [stopCamera]);
 
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        // Kluczowe dla iOS: playsInline i oczekiwanie na metadane
-        videoRef.current.setAttribute("playsinline", "true");
-        videoRef.current.onloadedmetadata = () => {
-          videoRef.current?.play().catch(e => console.error("Autoplay blocked", e));
-          setHasPermission(true);
-          setIsScanning(true);
-        };
-      }
-    } catch (err) {
-      console.error("Camera error:", err);
-      setHasPermission(false);
-      setError("Nie można uzyskać dostępu do kamery. Sprawdź uprawnienia w przeglądarce.");
-    }
-  }, []);
+  const handleScanSuccess = useCallback(
+    (qrCode: string) => {
+      stopCamera();
+      setCameraState("idle");
+      setLastScanned(qrCode);
+      onScan?.(qrCode);
+      router.push(`/${locale}/units?qr=${encodeURIComponent(qrCode)}`);
+    },
+    [locale, onScan, router, stopCamera]
+  );
 
   const processFrame = useCallback(async () => {
-    if (!videoRef.current || !canvasRef.current || !isScanning) return;
-
     const video = videoRef.current;
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
+    if (!video || !canvas) return;
 
-    if (ctx && video.readyState === video.HAVE_ENOUGH_DATA) {
+    const ctx = canvas.getContext("2d");
+    if (ctx && video.readyState === video.HAVE_ENOUGH_DATA && video.videoWidth > 0) {
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
       ctx.drawImage(video, 0, 0);
 
-      try {
-        // Dynamiczny import jsQR aby uniknąć problemów z SSR
-        const { default: jsQR } = await import("jsqr");
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        const code = jsQR(imageData.data, imageData.width, imageData.height);
-
-        if (code) {
-          handleScanSuccess(code.data);
-          return; // Zatrzymujemy pętlę po sukcesie
-        }
-      } catch (e) {
-        console.error("QR processing error", e);
+      const { default: jsQR } = await import("jsqr");
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const code = jsQR(imageData.data, imageData.width, imageData.height, {
+        inversionAttempts: "dontInvert",
+      });
+      if (code?.data) {
+        handleScanSuccess(code.data);
+        return;
       }
     }
+    animFrameRef.current = requestAnimationFrame(processFrame);
+  }, [handleScanSuccess]);
 
-    if (isScanning) {
-      requestAnimationFrame(processFrame);
+  const startCamera = useCallback(async () => {
+    setCameraState("requesting");
+    setErrorMsg(null);
+
+    try {
+      if (!navigator?.mediaDevices?.getUserMedia) {
+        throw new Error("Camera API not supported");
+      }
+
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: { ideal: "environment" },
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+        },
+        audio: false,
+      });
+
+      streamRef.current = stream;
+
+      const video = videoRef.current;
+      if (!video) throw new Error("Video element not found");
+
+      video.srcObject = stream;
+
+      // iOS Safari critical: must set these before play()
+      video.setAttribute("playsinline", "true");
+      video.setAttribute("webkit-playsinline", "true");
+      video.muted = true;
+
+      await new Promise<void>((resolve, reject) => {
+        video.onloadedmetadata = () => resolve();
+        video.onerror = () => reject(new Error("Video load error"));
+        setTimeout(() => resolve(), 3000); // fallback timeout
+      });
+
+      await video.play();
+
+      // Extra delay for iOS to actually start rendering frames
+      await new Promise((r) => setTimeout(r, 300));
+
+      setCameraState("active");
+      animFrameRef.current = requestAnimationFrame(processFrame);
+
+    } catch (err: any) {
+      console.error("Camera error:", err?.name, err?.message);
+      stopCamera();
+      if (err?.name === "NotAllowedError" || err?.name === "PermissionDeniedError") {
+        setCameraState("denied");
+        setErrorMsg("Zezwól na dostęp do kamery w ustawieniach przeglądarki.");
+      } else {
+        setCameraState("error");
+        setErrorMsg(`Nie można uruchomić kamery: ${err?.message || "nieznany błąd"}`);
+      }
     }
-  }, [isScanning]);
-
-  useEffect(() => {
-    if (isScanning) {
-      processFrame();
-    }
-    return () => stopCamera();
-  }, [isScanning, processFrame, stopCamera]);
-
-  const handleScanSuccess = (qrCode: string) => {
-    setLastScanned(qrCode);
-    setIsScanning(false);
-    stopCamera();
-
-    // Sprawdzenie formatu kodu
-    if (qrCode.startsWith("HVAC-") || qrCode.length > 3) {
-      onScan?.(qrCode);
-      router.push(`/${locale}/units?qr=${encodeURIComponent(qrCode)}`);
-    } else {
-      setError("Nieprawidłowy kod QR");
-      setIsScanning(true); // Wznawiamy skanowanie
-      startCamera();
-    }
-  };
-
-  const handleManualEntry = () => {
-    const mockQR = `HVAC-${Date.now().toString(36).toUpperCase()}`;
-    handleScanSuccess(mockQR);
-  };
+  }, [processFrame, stopCamera]);
 
   const toggleFlash = useCallback(() => {
-    if (videoRef.current?.srcObject) {
-      const stream = videoRef.current.srcObject as MediaStream;
-      const track = stream.getVideoTracks()[0];
-      const capabilities = track?.getCapabilities() as any;
-      if (capabilities?.torch) {
-        track.applyConstraints({ advanced: [{ torch: !flashEnabled } as any] });
-        setFlashEnabled(!flashEnabled);
-      }
+    if (!streamRef.current) return;
+    const track = streamRef.current.getVideoTracks()[0];
+    const capabilities = track?.getCapabilities() as any;
+    if (capabilities?.torch) {
+      track.applyConstraints({ advanced: [{ torch: !flashEnabled } as any] });
+      setFlashEnabled((prev) => !prev);
     }
   }, [flashEnabled]);
 
+  const isActive = cameraState === "active";
+
   return (
-    <div className="min-h-screen bg-background flex flex-col overflow-hidden">
-      {/* Podgląd kamery */}
-      <div className="relative flex-1 bg-black">
-        {hasPermission === null && (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="text-center p-6">
-              <Camera className="w-16 h-16 mx-auto mb-4 text-muted-foreground animate-pulse" />
-              <p className="text-muted-foreground">Oczekiwanie na uruchomienie...</p>
+    // Full screen container - iOS needs explicit height NOT from flex-1
+    <div style={{ position: "fixed", inset: 0, background: "#000", display: "flex", flexDirection: "column" }}>
+
+      {/* Camera area - takes all space above bottom panel */}
+      <div style={{ position: "relative", flex: 1, overflow: "hidden", background: "#000" }}>
+
+        {/* VIDEO - iOS Safari needs explicit width/height, NOT object-cover on absolute */}
+        <video
+          ref={videoRef}
+          playsInline
+          muted
+          autoPlay
+          // iOS Safari: use inline style, not Tailwind classes
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            display: isActive ? "block" : "none",
+            // Force GPU layer on iOS
+            transform: "translateZ(0)",
+            WebkitTransform: "translateZ(0)",
+          }}
+        />
+        <canvas ref={canvasRef} style={{ display: "none" }} />
+
+        {/* Idle */}
+        {cameraState === "idle" && (
+          <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <div style={{ textAlign: "center", padding: "24px" }}>
+              <div style={{ width: 80, height: 80, borderRadius: "50%", background: "rgba(249,115,22,0.2)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
+                <Camera style={{ width: 40, height: 40, color: "#f97316" }} />
+              </div>
+              <p style={{ color: "#fff", fontWeight: 600, fontSize: 18 }}>Skaner QR</p>
+              <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 14, marginTop: 8 }}>
+                Naciśnij przycisk aby uruchomić kamerę
+              </p>
             </div>
           </div>
         )}
 
-        {hasPermission === false && (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <Card className="m-4 max-w-sm">
-              <CardContent className="p-6 text-center space-y-4">
-                <div className="w-16 h-16 mx-auto rounded-full bg-destructive/10 flex items-center justify-center">
-                  <Camera className="w-8 h-8 text-destructive" />
+        {/* Requesting */}
+        {cameraState === "requesting" && (
+          <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <div style={{ textAlign: "center" }}>
+              <div style={{ width: 48, height: 48, border: "3px solid #f97316", borderTopColor: "transparent", borderRadius: "50%", animation: "spin 1s linear infinite", margin: "0 auto 12px" }} />
+              <p style={{ color: "rgba(255,255,255,0.7)", fontSize: 14 }}>Uruchamianie kamery...</p>
+            </div>
+          </div>
+        )}
+
+        {/* Denied / Error */}
+        {(cameraState === "denied" || cameraState === "error") && (
+          <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
+            <Card style={{ width: "100%", maxWidth: 360 }}>
+              <CardContent style={{ padding: 24, textAlign: "center" }}>
+                <div style={{ width: 64, height: 64, borderRadius: "50%", background: "rgba(239,68,68,0.1)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
+                  <Camera style={{ width: 32, height: 32, color: "#ef4444" }} />
                 </div>
-                <p className="font-semibold">{error || "Brak dostępu do kamery"}</p>
+                <p style={{ fontWeight: 600, marginBottom: 8 }}>Brak dostępu do kamery</p>
+                <p style={{ fontSize: 13, color: "var(--muted-foreground)", marginBottom: 16 }}>{errorMsg}</p>
                 <Button onClick={startCamera} className="w-full">Spróbuj ponownie</Button>
               </CardContent>
             </Card>
           </div>
         )}
 
-        <video ref={videoRef} className="w-full h-full object-cover" playsInline muted />
-        <canvas ref={canvasRef} className="hidden" />
-
-        {/* Ramka skanowania */}
-        {isScanning && (
-          <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-            <div className="w-64 h-64 border-2 border-white/30 rounded-2xl relative">
-              <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-primary rounded-tl-lg" />
-              <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-primary rounded-tr-lg" />
-              <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-primary rounded-bl-lg" />
-              <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-primary rounded-br-lg" />
+        {/* Active overlay */}
+        {isActive && (
+          <>
+            {/* Scan frame */}
+            <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
+              <div style={{ width: 220, height: 220, position: "relative" }}>
+                {[
+                  { top: 0, left: 0, borderTop: "4px solid #f97316", borderLeft: "4px solid #f97316", borderRadius: "12px 0 0 0" },
+                  { top: 0, right: 0, borderTop: "4px solid #f97316", borderRight: "4px solid #f97316", borderRadius: "0 12px 0 0" },
+                  { bottom: 0, left: 0, borderBottom: "4px solid #f97316", borderLeft: "4px solid #f97316", borderRadius: "0 0 0 12px" },
+                  { bottom: 0, right: 0, borderBottom: "4px solid #f97316", borderRight: "4px solid #f97316", borderRadius: "0 0 12px 0" },
+                ].map((s, i) => (
+                  <div key={i} style={{ position: "absolute", width: 32, height: 32, ...s }} />
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+            <p style={{ position: "absolute", bottom: 90, left: 0, right: 0, textAlign: "center", color: "#fff", fontSize: 14, fontWeight: 500, textShadow: "0 1px 3px rgba(0,0,0,0.8)" }}>
+              Skieruj kamerę na kod QR
+            </p>
 
-        {/* Przyciski sterujące na górze */}
-        <div className="absolute top-4 left-4 right-4 flex items-center justify-between">
-          <button onClick={() => router.back()} className="p-3 rounded-full bg-black/50 text-white shadow-lg">
-            <X className="w-6 h-6" />
-          </button>
-          <button onClick={toggleFlash} className="p-3 rounded-full bg-black/50 text-white shadow-lg">
-            {flashEnabled ? <Flashlight className="w-6 h-6" /> : <FlashlightOff className="w-6 h-6" />}
-          </button>
-        </div>
+            {/* Controls */}
+            <div style={{ position: "absolute", top: 16, left: 16, right: 16, display: "flex", justifyContent: "space-between" }}>
+              <button
+                onClick={() => { stopCamera(); setCameraState("idle"); router.back(); }}
+                style={{ width: 48, height: 48, borderRadius: "50%", background: "rgba(0,0,0,0.5)", border: "none", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
+              >
+                <X style={{ width: 24, height: 24 }} />
+              </button>
+              <button
+                onClick={toggleFlash}
+                style={{ width: 48, height: 48, borderRadius: "50%", background: "rgba(0,0,0,0.5)", border: "none", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
+              >
+                {flashEnabled ? <Flashlight style={{ width: 24, height: 24 }} /> : <FlashlightOff style={{ width: 24, height: 24 }} />}
+              </button>
+            </div>
+          </>
+        )}
       </div>
 
-      {/* DOLNY PANEL - Zastosowano pb-nav dla poprawki responsywności */}
-      <div className="p-6 space-y-4 bg-background border-t border-border pb-nav">
+      {/* Bottom panel */}
+      <div style={{ background: "hsl(var(--background))", padding: 16, display: "flex", flexDirection: "column", gap: 12 }}>
         {lastScanned && (
-          <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/20 text-green-500 text-center text-sm font-medium">
-            Zeskanowano: {lastScanned}
+          <div style={{ padding: 12, borderRadius: 8, background: "rgba(34,197,94,0.1)", border: "1px solid rgba(34,197,94,0.2)", color: "#4ade80", fontSize: 14, fontWeight: 500 }}>
+            ✓ Zeskanowano: {lastScanned}
           </div>
         )}
 
-        {!isScanning ? (
-          <Button onClick={startCamera} size="lg" className="w-full h-14 text-lg">
-            <Camera className="w-6 h-6 mr-2" />
-            Uruchom kamerę
-          </Button>
-        ) : (
-          <Button onClick={stopCamera} variant="outline" size="lg" className="w-full h-14">
-            Zatrzymaj
+        {!isActive && cameraState !== "requesting" && (
+          <Button onClick={startCamera} size="lg" className="w-full">
+            <Camera className="w-5 h-5 mr-2" />
+            {cameraState === "idle" ? "Uruchom kamerę" : "Spróbuj ponownie"}
           </Button>
         )}
 
-        <div className="pt-2">
-          <p className="text-xs text-center text-muted-foreground mb-3">
-            Problemy z kamerą? Użyj symulacji do testów:
-          </p>
-          <Button onClick={handleManualEntry} variant="secondary" className="w-full h-12">
-            <RotateCcw className="w-5 h-5 mr-2" />
-            Symuluj skan (Demo)
-          </Button>
-        </div>
+        <Button
+          variant="outline"
+          size="lg"
+          className="w-full"
+          onClick={() => router.push(`/${locale}/units`)}
+        >
+          Przejdź do listy urządzeń
+        </Button>
       </div>
+
+      <style>{`
+        @keyframes spin { to { transform: rotate(360deg); } }
+      `}</style>
     </div>
   );
 }

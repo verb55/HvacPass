@@ -100,14 +100,14 @@ export function DashboardClient({
                 {t("unit.scan_qr")} lub wybierz urządzenie z listy
               </p>
             </div>
-            <div className="flex gap-3 justify-center">
-              <Button asChild size="lg">
+            <div className="flex flex-col gap-2 w-full">
+              <Button asChild size="lg" className="w-full">
                 <Link href={`/${locale}/scan`}>
                   <ScanLine className="w-5 h-5 mr-2" />
                   {t("unit.scan_qr")}
                 </Link>
               </Button>
-              <Button asChild variant="outline" size="lg">
+              <Button asChild variant="outline" size="lg" className="w-full">
                 <Link href={`/${locale}/units`}>
                   <Plus className="w-5 h-5 mr-2" />
                   {t("unit.select")}
